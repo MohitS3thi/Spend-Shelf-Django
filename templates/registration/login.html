@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+{% block title %}Login | Spend Shelf{% endblock %}
+{% block content %}
+<section class="card auth-card">
+    <h1>Welcome Back</h1>
+    <p class="muted">Track every expense with clarity.</p>
+    <form method="post" class="stack-form">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="btn-primary">Login</button>
+    </form>
+    <p class="muted">No account yet? <a href="{% url 'signup' %}">Sign up</a></p>
+</section>
+{% endblock %}

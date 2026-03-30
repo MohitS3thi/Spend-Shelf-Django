@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+{% block title %}Monthly Report | Spend Shelf{% endblock %}
+{% block content %}
+<section class="hero">
+    <h1>Monthly Report</h1>
+    <form method="get" class="month-filter">
+        <input type="month" name="month" value="{{ selected_month }}" />
+        <button type="submit" class="btn-primary">Apply</button>
+    </form>
+</section>
+
+<section class="grid stats-grid">
+    <article class="card stat-card">
+        <h3>Total for Month</h3>
+        <p class="amount">${{ month_total }}</p>
+    </article>
+</section>
+
+<section class="grid content-grid">
+    <article class="card">
+        <h2>Category Breakdown</h2>
+        <ul class="clean-list">
+            {% for row in category_breakdown %}
+                <li>
+                    <span>{{ row.category__name }}</span>
+                    <strong>${{ row.total }}</strong>
+                </li>
+            {% empty %}
+                <li class="muted">No category data for this month.</li>
+            {% endfor %}
+        </ul>
+    </article>
+
+    <article class="card">
+        <h2>Expense Entries</h2>
+        <ul class="clean-list">
+            {% for expense in expenses %}
+                <li>
+                    <span>{{ expense.date }} - {{ expense.title }}</span>
+                    <strong>${{ expense.amount }}</strong>
+                </li>
+            {% empty %}
+                <li class="muted">No expenses found.</li>
+            {% endfor %}
+        </ul>
+    </article>
+</section>
+{% endblock %}

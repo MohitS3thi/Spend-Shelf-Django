@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+{% block title %}Expense Form | Spend Shelf{% endblock %}
+{% block content %}
+<section class="card form-card">
+    <h1>{% if object %}Edit Expense{% else %}Add Expense{% endif %}</h1>
+    <form method="post" class="stack-form">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="btn-primary">Save</button>
+    </form>
+</section>
+{% endblock %}

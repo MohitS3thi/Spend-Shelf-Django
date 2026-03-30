@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+{% block title %}Financial Profile | Spend Shelf{% endblock %}
+{% block content %}
+<section class="card form-card">
+    <h1>Financial Profile</h1>
+    <p class="muted">Set savings, salary, and monthly budget to unlock alerts and insights.</p>
+
+    <form method="post" class="stack-form">
+        {% csrf_token %}
+        {{ profile_form.as_p }}
+        <button type="submit" class="btn-primary">Save Financial Profile</button>
+    </form>
+
+    <div class="card-action">
+        <a href="{% url 'export-spending-csv' %}" class="btn-secondary" title="Export spending and profile as CSV">📥 Export CSV</a>
+    </div>
+</section>
+{% endblock %}

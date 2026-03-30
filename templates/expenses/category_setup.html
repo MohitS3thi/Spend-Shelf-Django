@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+{% block title %}Setup Categories | Spend Shelf{% endblock %}
+{% block content %}
+<section class="card form-card">
+    <h1>Setup Categories</h1>
+    <p class="muted">Create categories for your expenses and seed a default starter set.</p>
+
+    <form method="post" class="stack-form">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="seed" />
+        <button type="submit" class="btn-primary">Seed Default Categories</button>
+    </form>
+
+    <hr class="section-divider" />
+
+    <h2>Add Category</h2>
+    <form method="post" class="stack-form">
+        {% csrf_token %}
+        {{ category_form.as_p }}
+        <button type="submit" class="btn-primary">Save Category</button>
+    </form>
+</section>
+
+<section class="card">
+    <h2>Your Categories</h2>
+    {% if categories %}
+        <ul class="clean-list">
+            {% for category in categories %}
+                <li>
+                    <span>{{ category.name }}</span>
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p class="muted">No categories yet. Add one above or seed defaults.</p>
+    {% endif %}
+</section>
+{% endblock %}

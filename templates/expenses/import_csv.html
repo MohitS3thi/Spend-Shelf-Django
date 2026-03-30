@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+{% block title %}Import CSV | Spend Shelf{% endblock %}
+{% block content %}
+<section class="card form-card">
+    <h1>Import Expenses from CSV</h1>
+    <p class="muted">Upload UTF-8 CSV with headers: date,title,category,amount,notes.</p>
+
+    <form method="post" enctype="multipart/form-data" class="stack-form">
+        {% csrf_token %}
+        {{ import_form.as_p }}
+        <button type="submit" class="btn-primary">Import CSV</button>
+    </form>
+</section>
+{% endblock %}

@@ -1,0 +1,137 @@
+{% extends 'base.html' %}
+{% block title %}Dashboard | Spend Shelf{% endblock %}
+{% block content %}
+<section class="hero">
+    <div>
+        <h1>Expense Dashboard</h1>
+        <p class="muted">Watch trends, control costs, and stay ahead of your budget.</p>
+    </div>
+    <div class="hero-actions">
+        <a href="{% url 'expense-add' %}" class="btn-primary">Add Expense</a>
+        <a href="{% url 'export-spending-csv' %}" class="btn-secondary" title="Export spending as CSV">📥 CSV</a>
+    </div>
+</section>
+
+<section class="grid stats-grid">
+    <article class="card stat-card">
+        <h3>This Month</h3>
+        <p class="amount">${{ current_month_total }}</p>
+    </article>
+    <article class="card stat-card">
+        <h3>Lifetime Spend</h3>
+        <p class="amount">${{ lifetime_total }}</p>
+    </article>
+</section>
+
+{% if budget_alert_message %}
+    <section class="card budget-alert budget-{{ budget_alert }}">
+        <h3>Budget Status</h3>
+        <p>{{ budget_alert_message }}</p>
+        <p class="muted">Used {{ budget_used_percentage }}% of your monthly budget.</p>
+    </section>
+{% endif %}
+
+<section class="grid content-grid">
+    <article class="card">
+        <h2>6-Month Trend</h2>
+        <div class="chart-wrap">
+            <canvas id="expenseChart"></canvas>
+        </div>
+    </article>
+
+    <article class="card">
+        <h2>Recent Expenses</h2>
+        <ul class="clean-list">
+            {% for item in recent_expenses %}
+                <li>
+                    <span>{{ item.title }} <small class="muted">({{ item.category.name }})</small></span>
+                    <strong>${{ item.amount }}</strong>
+                </li>
+            {% empty %}
+                <li class="muted">No expenses yet.</li>
+            {% endfor %}
+        </ul>
+    </article>
+</section>
+
+<section class="grid content-grid">
+    <article class="card">
+        <h2>Insights</h2>
+        <ul class="clean-list">
+            {% if top_category %}
+                <li>
+                    <span>Top Category (This Month)</span>
+                    <strong>{{ top_category.category__name }} (${{ top_category.total }})</strong>
+                </li>
+            {% endif %}
+            <li>
+                <span>Avg Daily Spend</span>
+                <strong>${{ avg_daily_spend }}</strong>
+            </li>
+            {% if salary_spend_ratio is not None %}
+                <li>
+                    <span>Salary Used This Month</span>
+                    <strong>{{ salary_spend_ratio }}%</strong>
+                </li>
+            {% endif %}
+            <li>
+                <span>Due Recurring Transactions</span>
+                <strong>{{ due_recurring_count }}</strong>
+            </li>
+        </ul>
+    </article>
+
+    <article class="card">
+        <h2>Financial Snapshot</h2>
+        <ul class="clean-list">
+            <li>
+                <span>Current Savings</span>
+                <strong>${{ financial_profile.current_savings }}</strong>
+            </li>
+            <li>
+                <span>Monthly Salary</span>
+                <strong>${{ financial_profile.monthly_salary }}</strong>
+            </li>
+            <li>
+                <span>Monthly Budget</span>
+                <strong>${{ financial_profile.monthly_budget }}</strong>
+            </li>
+        </ul>
+        <div class="card-action">
+            <a href="{% url 'financial-profile' %}" class="btn-primary">Update Financial Profile</a>
+        </div>
+    </article>
+</section>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+{{ chart_labels|json_script:"chart-labels" }}
+{{ chart_values|json_script:"chart-values" }}
+<script>
+    const labels = JSON.parse(document.getElementById("chart-labels").textContent);
+    const data = JSON.parse(document.getElementById("chart-values").textContent);
+
+    const ctx = document.getElementById("expenseChart").getContext("2d");
+    new Chart(ctx, {
+        type: "line",
+        data: {
+            labels: labels,
+            datasets: [{
+                label: "Monthly Spend",
+                data: data,
+                borderColor: "#f97316",
+                backgroundColor: "rgba(249, 115, 22, 0.2)",
+                borderWidth: 2,
+                tension: 0.35,
+                fill: true,
+            }],
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false },
+            },
+        },
+    });
+</script>
+{% endblock %}

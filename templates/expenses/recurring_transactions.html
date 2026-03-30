@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+{% block title %}Recurring Transactions | Spend Shelf{% endblock %}
+{% block content %}
+<section class="card form-card">
+    <h1>Recurring Transactions</h1>
+    <p class="muted">Create weekly or monthly recurring expenses and process due entries.</p>
+
+    <form method="post" class="stack-form">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="process-due" />
+        <button type="submit" class="btn-primary">Process Due Transactions</button>
+    </form>
+
+    <hr class="section-divider" />
+
+    <h2>Add Recurring Transaction</h2>
+    <form method="post" class="stack-form">
+        {% csrf_token %}
+        {{ recurring_form.as_p }}
+        <button type="submit" class="btn-primary">Save Recurring Transaction</button>
+    </form>
+</section>
+
+<section class="card">
+    <h2>Your Recurring Items</h2>
+    {% if recurring_items %}
+        <ul class="clean-list">
+            {% for item in recurring_items %}
+                <li>
+                    <span>
+                        {{ item.title }}
+                        <small class="muted">({{ item.category.name }} / {{ item.get_frequency_display }} / next: {{ item.next_due_date }})</small>
+                    </span>
+                    <strong>${{ item.amount }}</strong>
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p class="muted">No recurring transactions yet.</p>
+    {% endif %}
+</section>
+{% endblock %}
