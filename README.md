@@ -45,6 +45,16 @@ A production-ready Django expense tracker covering:
 - WhiteNoise for static files
 - Gunicorn for production
 
+## Screenshots 
+<img width="1905" height="926" alt="Screenshot 2026-04-01 204528" src="https://github.com/user-attachments/assets/531c3649-9301-4ee8-a3da-110e5037a3b6" />
+<img width="1883" height="882" alt="Screenshot 2026-04-01 204712" src="https://github.com/user-attachments/assets/42432991-2ae4-4eb1-ac2d-5a60566ea835" />
+<img width="1897" height="928" alt="Screenshot 2026-04-01 204622" src="https://github.com/user-attachments/assets/42a4a64f-e613-4768-9d1f-805e866e190a" />
+<img width="697" height="633" alt="Screenshot 2026-04-01 204856" src="https://github.com/user-attachments/assets/a781db80-a4c2-434e-8912-e6e8a0b37ab4" />
+<img width="1892" height="934" alt="Screenshot 2026-04-01 204755" src="https://github.com/user-attachments/assets/12227148-86c5-4a61-8c91-7af61dc37c9b" />
+
+
+
+
 ## Local Setup
 
 1. Create and activate a virtual environment.
