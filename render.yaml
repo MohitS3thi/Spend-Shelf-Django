@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: spend-shelf
+    env: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn expense_tracker.wsgi:application --log-file -
+    pythonVersion: 3.12.3
+    envVars:
+      - key: DJANGO_DEBUG
+        value: "False"
