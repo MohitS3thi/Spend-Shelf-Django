@@ -3,7 +3,7 @@ services:
     name: spend-shelf
     env: python
     plan: free
-    buildCommand: pip install -r requirements.txt
+    buildCommand: pip install -r requirements.txt && python manage.py collectstatic --noinput
     startCommand: gunicorn expense_tracker.wsgi:application --log-file -
     pythonVersion: 3.12.3
     envVars:
