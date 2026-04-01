@@ -10,7 +10,6 @@ venv/
 env/
 
 # Django
-staticfiles/
 media/
 
 # Environment variables
