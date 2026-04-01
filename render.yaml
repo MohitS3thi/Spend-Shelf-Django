@@ -6,6 +6,7 @@ services:
     buildCommand: pip install -r requirements.txt && python manage.py collectstatic --noinput
     startCommand: gunicorn expense_tracker.wsgi:application --log-file -
     pythonVersion: 3.12.3
+    preDeployCommand: python manage.py migrate
     envVars:
       - key: DJANGO_DEBUG
         value: "False"
