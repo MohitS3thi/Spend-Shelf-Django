@@ -1,4 +1,5 @@
 import csv
+import statistics
 from calendar import monthrange
 from datetime import datetime, timedelta
 from decimal import Decimal, InvalidOperation
@@ -9,7 +10,7 @@ from django.http import HttpResponse
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.views import LoginView
-from django.db.models import Sum
+from django.db.models import Count, Sum
 from django.db.models.functions import TruncMonth
 from django.shortcuts import redirect
 from django.urls import reverse_lazy
@@ -111,18 +112,156 @@ class DashboardView(LoginRequiredMixin, TemplateView):
         return context
 
 
+class AnalysisView(LoginRequiredMixin, TemplateView):
+    template_name = "expenses/analysis.html"
+    ANALYSIS_OPTIONS = {
+        "overview": "Overview",
+        "median": "Median expense",
+        "standard_deviation": "Standard deviation",
+        "month_over_month": "Month-over-month change",
+        "category_variance": "Category-wise variance",
+        "trend_projection": "Trend projection",
+    }
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        expenses = Expense.objects.filter(user=self.request.user)
+        selected_analysis = self.request.GET.get("analysis", "overview")
+        if selected_analysis not in self.ANALYSIS_OPTIONS:
+            selected_analysis = "overview"
+        amounts = list(expenses.values_list("amount", flat=True))
+
+        monthly_totals = list(
+            expenses.annotate(month=TruncMonth("date"))
+            .values("month")
+            .annotate(total=Sum("amount"))
+            .order_by("month")
+        )[-12:]
+        category_totals = list(
+            expenses.values("category__name")
+            .annotate(total=Sum("amount"), count=Count("id"))
+            .order_by("-total")
+        )
+        summary = expenses.aggregate(
+            total=Sum("amount"),
+            count=Count("id"),
+        )
+        average = (summary["total"] / summary["count"]) if summary["total"] and summary["count"] else 0
+        median = statistics.median(amounts) if amounts else 0
+        standard_deviation = statistics.pstdev(amounts) if len(amounts) > 1 else 0
+        trend_labels = [entry["month"].strftime("%b %Y") for entry in monthly_totals]
+        trend_values = [float(entry["total"]) for entry in monthly_totals]
+        projection = 0
+        trend_slope = 0
+        if trend_values:
+            if len(trend_values) > 1:
+                x_mean = (len(trend_values) - 1) / 2
+                y_mean = sum(trend_values) / len(trend_values)
+                denominator = sum((index - x_mean) ** 2 for index in range(len(trend_values)))
+                trend_slope = sum(
+                    (index - x_mean) * (value - y_mean)
+                    for index, value in enumerate(trend_values)
+                ) / denominator
+                trend_intercept = y_mean - trend_slope * x_mean
+                trend_line_values = [
+                    round(trend_intercept + trend_slope * index, 2)
+                    for index in range(len(trend_values) + 1)
+                ]
+            else:
+                projection = trend_values[0]
+                trend_line_values = [trend_values[0], trend_values[0]]
+            projection = trend_line_values[-1]
+            last_month = monthly_totals[-1]["month"]
+            next_month = last_month.month + 1
+            next_year = last_month.year
+            if next_month > 12:
+                next_month = 1
+                next_year += 1
+            trend_labels.append(datetime(next_year, next_month, 1).strftime("%b %Y"))
+            trend_values.append(None)
+        else:
+            trend_line_values = []
+        month_over_month = []
+        for previous, current in zip(monthly_totals, monthly_totals[1:]):
+            previous_total = previous["total"]
+            current_total = current["total"]
+            change = ((current_total - previous_total) / previous_total * 100) if previous_total else None
+            month_over_month.append({
+                "month": current["month"].strftime("%b %Y"),
+                "total": current_total,
+                "change": round(change, 2) if change is not None else None,
+            })
+
+        category_amounts = {}
+        for category_name, amount in expenses.values_list("category__name", "amount"):
+            category_amounts.setdefault(category_name, []).append(amount)
+        category_variances = []
+        for category_name, category_values in category_amounts.items():
+            category_variances.append({
+                "name": category_name,
+                "count": len(category_values),
+                "variance": round(statistics.pvariance(category_values), 2) if len(category_values) > 1 else 0,
+            })
+        category_variances.sort(key=lambda row: row["variance"], reverse=True)
+
+        context["analysis_month_labels"] = [entry["month"].strftime("%b %Y") for entry in monthly_totals]
+        context["analysis_month_values"] = [float(entry["total"]) for entry in monthly_totals]
+        context["chart_labels"] = trend_labels if selected_analysis == "trend_projection" else context["analysis_month_labels"]
+        context["chart_values"] = trend_values if selected_analysis == "trend_projection" else context["analysis_month_values"]
+        context["show_trend_line"] = selected_analysis == "trend_projection"
+        context["trend_labels"] = trend_labels
+        context["trend_values"] = trend_values
+        context["trend_line_values"] = trend_line_values
+        context["trend_projection"] = round(projection, 2)
+        context["trend_slope"] = round(trend_slope, 2)
+        context["category_labels"] = [entry["category__name"] for entry in category_totals]
+        context["category_values"] = [float(entry["total"]) for entry in category_totals]
+        context["category_totals"] = category_totals
+        context["analysis_total"] = summary["total"] or 0
+        context["analysis_count"] = summary["count"] or 0
+        context["analysis_average"] = round(average, 2)
+        context["analysis_median"] = round(median, 2)
+        context["analysis_standard_deviation"] = round(standard_deviation, 2)
+        context["month_over_month"] = month_over_month
+        context["category_variances"] = category_variances
+        context["analysis_options"] = self.ANALYSIS_OPTIONS.items()
+        context["selected_analysis"] = selected_analysis
+        context["selected_analysis_label"] = self.ANALYSIS_OPTIONS[selected_analysis]
+        context["largest_expense"] = expenses.select_related("category").order_by("-amount", "-date").first()
+        return context
+
+
 class ExpenseListView(LoginRequiredMixin, ListView):
     model = Expense
     template_name = "expenses/expense_list.html"
     context_object_name = "expenses"
     paginate_by = 10
 
+    SORT_OPTIONS = {
+        "date_desc": ("-date", "-created_at"),
+        "date_asc": ("date", "created_at"),
+        "amount_desc": ("-amount", "-date", "-created_at"),
+        "amount_asc": ("amount", "date", "created_at"),
+        "title_asc": ("title", "-date", "-created_at"),
+        "title_desc": ("-title", "-date", "-created_at"),
+    }
+
     def get_queryset(self):
+        self.sort = self.request.GET.get("sort", "date_desc")
+        ordering = self.SORT_OPTIONS.get(self.sort, self.SORT_OPTIONS["date_desc"])
         return (
             Expense.objects.filter(user=self.request.user)
             .select_related("category")
-            .order_by("-date", "-created_at")
+            .order_by(*ordering)
         )
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        query_params = self.request.GET.copy()
+        query_params.pop("page", None)
+        context["pagination_query"] = query_params.urlencode()
+        context["current_sort"] = getattr(self, "sort", "date_desc")
+        return context
 
 
 class ExpenseCreateView(LoginRequiredMixin, CreateView):

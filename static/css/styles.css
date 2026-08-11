@@ -232,8 +232,79 @@ h3 {
     margin-bottom: 1rem;
 }
 
+.analysis-stats {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    margin-bottom: 1rem;
+}
+
 .content-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.analysis-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    margin-bottom: 1rem;
+}
+
+.analysis-chart {
+    height: 320px;
+    max-height: 320px;
+    margin-top: 1rem;
+}
+
+.analysis-breakdown {
+    margin-bottom: 1rem;
+}
+
+.analysis-selector {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1rem;
+    border-left: 4px solid var(--accent);
+}
+
+.analysis-form {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    flex: 0 0 auto;
+}
+
+.analysis-form label {
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.analysis-form select {
+    width: auto;
+    min-width: 220px;
+}
+
+.analysis-detail {
+    margin-bottom: 1rem;
+}
+
+.analysis-highlight {
+    margin: 1rem 0 0;
+    color: var(--accent-dark);
+    font-size: 2.2rem;
+    font-weight: 800;
+}
+
+.analysis-positive {
+    color: #15803d;
+    font-weight: 800;
+}
+
+.analysis-negative {
+    color: var(--danger);
+    font-weight: 800;
+}
+
+.analysis-detail .muted {
+    max-width: 760px;
 }
 
 .card {
@@ -268,6 +339,7 @@ h3 {
 
 .btn-primary {
     background: linear-gradient(135deg, var(--accent), #ea580c);
+    text-decoration: none;
 }
 
 .btn-primary:hover {
@@ -331,6 +403,55 @@ textarea {
     overflow-x: auto;
 }
 
+.expense-list-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.list-controls {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    margin: 0;
+    padding: 0.3rem 0.4rem 0.3rem 0.75rem;
+    color: #fff;
+    background: #1f2937;
+    border: 1px solid rgba(249, 115, 22, 0.5);
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(17, 24, 39, 0.14);
+}
+
+.list-controls label {
+    color: #fed7aa;
+    font-size: 0.85rem;
+    font-weight: 800;
+    white-space: nowrap;
+}
+
+.list-controls select {
+    width: auto;
+    min-width: 190px;
+    padding: 0.45rem 2rem 0.45rem 0.6rem;
+    color: #111827;
+    background: #fff;
+    border: 0;
+    border-radius: 7px;
+    font-size: 0.88rem;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.expense-list-footer {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border);
+}
+
 table {
     width: 100%;
     border-collapse: collapse;
@@ -361,7 +482,69 @@ td {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    gap: 0.8rem;
     margin-top: 0.9rem;
+    flex-wrap: wrap;
+}
+
+.pagination-links {
+    display: flex;
+    gap: 0.7rem;
+}
+
+.pagination a {
+    color: var(--accent-dark);
+    font-weight: 700;
+}
+
+.page-jump {
+    display: flex;
+    flex: 0 0 auto;
+    align-items: center;
+    gap: 0.4rem;
+    width: max-content;
+    max-width: 100%;
+    flex-wrap: nowrap;
+    white-space: nowrap;
+}
+
+.page-jump .page-number-input {
+    display: block;
+    flex: 0 0 36px !important;
+    width: 36px !important;
+    min-width: 36px;
+    max-width: 36px;
+    height: 36px;
+    padding: 0;
+    text-align: center;
+}
+
+.page-jump .btn-secondary {
+    padding: 0.45rem 0.75rem;
+}
+
+@media (max-width: 600px) {
+    .expense-list-toolbar {
+        align-items: flex-start;
+        flex-wrap: wrap;
+    }
+
+    .expense-list-toolbar .list-controls {
+        margin-left: auto;
+    }
+
+    .hero-actions {
+        width: 100%;
+    }
+
+    .list-controls {
+        flex: 1;
+    }
+
+    .list-controls select {
+        min-width: 0;
+        flex: 1;
+    }
 }
 
 .month-filter {
@@ -420,13 +603,35 @@ td {
 
 @media (max-width: 900px) {
     .stats-grid,
-    .content-grid {
+    .content-grid,
+    .analysis-grid {
         grid-template-columns: 1fr;
+    }
+
+    .analysis-stats {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 
     .topbar {
         flex-direction: column;
         align-items: flex-start;
         gap: 0.6rem;
+    }
+}
+
+@media (max-width: 600px) {
+    .analysis-selector,
+    .analysis-form {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .analysis-form select,
+    .analysis-form .btn-primary {
+        width: 100%;
+    }
+
+    .analysis-stats {
+        grid-template-columns: 1fr;
     }
 }

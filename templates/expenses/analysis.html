@@ -1,0 +1,259 @@
+{% extends 'base.html' %}
+{% block title %}Data Analysis | Spend Shelf{% endblock %}
+{% block content %}
+<section class="hero">
+    <div>
+        <h1>Data Analysis</h1>
+        <p class="muted">Understand where your money goes and how your spending changes over time.</p>
+    </div>
+    <div class="hero-actions">
+        <a href="{% url 'expense-list' %}" class="btn-secondary">View Expenses</a>
+        <a href="{% url 'expense-add' %}" class="btn-primary">Add Expense</a>
+    </div>
+</section>
+
+<section class="card analysis-selector">
+    <div>
+        <h2>Generate Analysis</h2>
+        <p class="muted">Choose a measure to inspect your spending in more detail.</p>
+    </div>
+    <form method="get" class="analysis-form">
+        <label for="analysis-measure">Measure</label>
+        <select id="analysis-measure" name="analysis">
+            {% for value, label in analysis_options %}
+                <option value="{{ value }}"{% if selected_analysis == value %} selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+        </select>
+        <button type="submit" class="btn-primary">Generate</button>
+    </form>
+</section>
+
+{% if selected_analysis == 'median' %}
+    <section class="card analysis-detail">
+        <h2>Median Expense</h2>
+        <p class="muted">Half of your recorded expenses are below this amount and half are above it.</p>
+        <p class="analysis-highlight">₹{{ analysis_median }}</p>
+    </section>
+{% elif selected_analysis == 'standard_deviation' %}
+    <section class="card analysis-detail">
+        <h2>Standard Deviation</h2>
+        <p class="muted">This shows how widely individual expenses vary around your average expense.</p>
+        <p class="analysis-highlight">₹{{ analysis_standard_deviation }}</p>
+    </section>
+{% elif selected_analysis == 'month_over_month' %}
+    <section class="card analysis-detail">
+        <h2>Month-over-Month Change</h2>
+        <p class="muted">Percentage change compares each month with the previous recorded month.</p>
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Month</th>
+                        <th>Total</th>
+                        <th>Change</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in month_over_month %}
+                        <tr>
+                            <td>{{ row.month }}</td>
+                            <td>₹{{ row.total }}</td>
+                            <td class="{% if row.change < 0 %}analysis-positive{% elif row.change > 0 %}analysis-negative{% endif %}">
+                                {% if row.change is not None %}{{ row.change }}%{% else %}New baseline{% endif %}
+                            </td>
+                        </tr>
+                    {% empty %}
+                        <tr><td colspan="3" class="muted">At least two months of data are needed.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </section>
+{% elif selected_analysis == 'category_variance' %}
+    <section class="card analysis-detail">
+        <h2>Category-wise Variance</h2>
+        <p class="muted">Variance measures how much expense amounts differ within each category.</p>
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Category</th>
+                        <th>Entries</th>
+                        <th>Variance</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in category_variances %}
+                        <tr>
+                            <td>{{ row.name }}</td>
+                            <td>{{ row.count }}</td>
+                            <td>₹{{ row.variance }}</td>
+                        </tr>
+                    {% empty %}
+                        <tr><td colspan="3" class="muted">No category data available yet.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </section>
+{% elif selected_analysis == 'trend_projection' %}
+    <section class="card analysis-detail">
+        <h2>Trend Projection</h2>
+        <p class="muted">A linear regression trendline estimates your likely spending for the next month.</p>
+        <p class="analysis-highlight">₹{{ trend_projection }}</p>
+        <p class="muted">
+            {% if trend_slope > 0 %}The trend is rising by approximately ₹{{ trend_slope }} per month.{% elif trend_slope < 0 %}The trend is falling by approximately ₹{{ trend_slope|floatformat:2|cut:'-' }} per month.{% else %}The trend is stable.{% endif %}
+        </p>
+    </section>
+{% endif %}
+
+<section class="grid analysis-stats">
+    <article class="card stat-card">
+        <h3>Total Spend</h3>
+        <p class="amount">₹{{ analysis_total }}</p>
+    </article>
+    <article class="card stat-card">
+        <h3>Average Expense</h3>
+        <p class="amount">₹{{ analysis_average }}</p>
+    </article>
+    <article class="card stat-card">
+        <h3>Expense Entries</h3>
+        <p class="amount">{{ analysis_count }}</p>
+    </article>
+    <article class="card stat-card">
+        <h3>Largest Expense</h3>
+        {% if largest_expense %}
+            <p class="amount">₹{{ largest_expense.amount }}</p>
+            <p class="muted">{{ largest_expense.title }}</p>
+        {% else %}
+            <p class="amount">₹0</p>
+        {% endif %}
+    </article>
+</section>
+
+<section class="grid analysis-grid">
+    <article class="card">
+        <h2>Monthly Spending</h2>
+        <p class="muted">Your latest 12 months of recorded spending.</p>
+        <div class="chart-wrap analysis-chart">
+            <canvas id="monthlyAnalysisChart"></canvas>
+        </div>
+    </article>
+
+    <article class="card">
+        <h2>Spending by Category</h2>
+        <p class="muted">Which categories account for the most spending.</p>
+        <div class="chart-wrap analysis-chart">
+            <canvas id="categoryAnalysisChart"></canvas>
+        </div>
+    </article>
+</section>
+
+<section class="card analysis-breakdown">
+    <h2>Category Breakdown</h2>
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th>Category</th>
+                    <th>Entries</th>
+                    <th>Total</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in category_totals %}
+                    <tr>
+                        <td>{{ row.category__name }}</td>
+                        <td>{{ row.count }}</td>
+                        <td>₹{{ row.total }}</td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="3" class="muted">No expense data available yet.</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</section>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+{{ analysis_month_labels|json_script:"analysis-month-labels" }}
+{{ analysis_month_values|json_script:"analysis-month-values" }}
+{{ chart_labels|json_script:"chart-labels" }}
+{{ chart_values|json_script:"chart-values" }}
+{{ trend_labels|json_script:"trend-labels" }}
+{{ trend_values|json_script:"trend-values" }}
+{{ trend_line_values|json_script:"trend-line-values" }}
+{{ show_trend_line|json_script:"show-trend-line" }}
+{{ category_labels|json_script:"category-labels" }}
+{{ category_values|json_script:"category-values" }}
+<script>
+    const monthLabels = JSON.parse(document.getElementById("analysis-month-labels").textContent);
+    const monthValues = JSON.parse(document.getElementById("analysis-month-values").textContent);
+    const chartLabels = JSON.parse(document.getElementById("chart-labels").textContent);
+    const chartValues = JSON.parse(document.getElementById("chart-values").textContent);
+    const trendLabels = JSON.parse(document.getElementById("trend-labels").textContent);
+    const trendValues = JSON.parse(document.getElementById("trend-values").textContent);
+    const trendLineValues = JSON.parse(document.getElementById("trend-line-values").textContent);
+    const showTrendLine = JSON.parse(document.getElementById("show-trend-line").textContent);
+    const categoryLabels = JSON.parse(document.getElementById("category-labels").textContent);
+    const categoryValues = JSON.parse(document.getElementById("category-values").textContent);
+
+    const monthlyChartDatasets = [{
+        label: "Monthly Spend",
+        data: chartValues,
+        backgroundColor: "rgba(249, 115, 22, 0.78)",
+        borderColor: "#c2410c",
+        borderWidth: 1,
+        borderRadius: 6,
+    }];
+
+    if (showTrendLine) {
+        monthlyChartDatasets.push({
+            label: "Trend and projection",
+            data: trendLineValues,
+            type: "line",
+            borderColor: "#1f2937",
+            backgroundColor: "#1f2937",
+            borderWidth: 3,
+            borderDash: [7, 5],
+            pointRadius: 3,
+            pointBackgroundColor: "#f97316",
+            tension: 0.2,
+        });
+    }
+
+    new Chart(document.getElementById("monthlyAnalysisChart"), {
+        type: "bar",
+        data: {
+            labels: chartLabels,
+            datasets: monthlyChartDatasets,
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: { y: { beginAtZero: true } },
+        },
+    });
+
+    new Chart(document.getElementById("categoryAnalysisChart"), {
+        type: "doughnut",
+        data: {
+            labels: categoryLabels,
+            datasets: [{
+                data: categoryValues,
+                backgroundColor: ["#f97316", "#2563eb", "#16a34a", "#eab308", "#dc2626", "#7c3aed"],
+                borderColor: "#ffffff",
+                borderWidth: 2,
+            }],
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { position: "bottom" } },
+        },
+    });
+</script>
+{% endblock %}

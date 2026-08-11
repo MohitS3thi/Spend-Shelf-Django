@@ -1,12 +1,23 @@
 {% extends 'base.html' %}
 {% block title %}Expenses | Spend Shelf{% endblock %}
 {% block content %}
-<section class="hero">
-    <h1>All Expenses</h1>
-    <a href="{% url 'expense-add' %}" class="btn-primary">Add Expense</a>
-</section>
-
 <section class="card">
+    <div class="expense-list-toolbar">
+        <h1>All Expenses</h1>
+        <form method="get" class="list-controls">
+            <label for="sort">Sort by</label>
+            <select id="sort" name="sort" onchange="this.form.submit()">
+                <option value="date_desc"{% if current_sort == 'date_desc' %} selected{% endif %}>Date, newest first</option>
+                <option value="date_asc"{% if current_sort == 'date_asc' %} selected{% endif %}>Date, oldest first</option>
+                <option value="amount_desc"{% if current_sort == 'amount_desc' %} selected{% endif %}>Amount, highest first</option>
+                <option value="amount_asc"{% if current_sort == 'amount_asc' %} selected{% endif %}>Amount, lowest first</option>
+                <option value="title_asc"{% if current_sort == 'title_asc' %} selected{% endif %}>Title, A to Z</option>
+                <option value="title_desc"{% if current_sort == 'title_desc' %} selected{% endif %}>Title, Z to A</option>
+            </select>
+            <noscript><button type="submit" class="btn-secondary">Apply</button></noscript>
+        </form>
+    </div>
+
     <div class="table-wrap">
         <table>
             <thead>
@@ -40,15 +51,33 @@
         </table>
     </div>
 
+    <div class="expense-list-footer">
+        <a href="{% url 'expense-add' %}" class="btn-primary">Add Expense</a>
+    </div>
+
     {% if is_paginated %}
         <div class="pagination">
-            {% if page_obj.has_previous %}
-                <a href="?page={{ page_obj.previous_page_number }}">Previous</a>
-            {% endif %}
-            <span>Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
-            {% if page_obj.has_next %}
-                <a href="?page={{ page_obj.next_page_number }}">Next</a>
-            {% endif %}
+            <div class="pagination-links">
+                {% if page_obj.has_previous %}
+                    <a href="?{% if pagination_query %}{{ pagination_query }}&{% endif %}page=1" aria-label="First page" title="First page">⏮️</a>
+                    <a href="?{% if pagination_query %}{{ pagination_query }}&{% endif %}page={{ page_obj.previous_page_number }}" aria-label="Previous page" title="Previous page">◀️</a>
+                {% endif %}
+            </div>
+
+            <form method="get" class="page-jump">
+                {% if current_sort %}<input type="hidden" name="sort" value="{{ current_sort }}">{% endif %}
+                <label for="page-number">Page</label>
+                <input id="page-number" class="page-number-input" name="page" type="number" min="1" max="{{ page_obj.paginator.num_pages }}" value="{{ page_obj.number }}">
+                <span>of {{ page_obj.paginator.num_pages }}</span>
+                <button type="submit" class="btn-secondary">Go</button>
+            </form>
+
+            <div class="pagination-links">
+                {% if page_obj.has_next %}
+                    <a href="?{% if pagination_query %}{{ pagination_query }}&{% endif %}page={{ page_obj.next_page_number }}" aria-label="Next page" title="Next page">▶️</a>
+                    <a href="?{% if pagination_query %}{{ pagination_query }}&{% endif %}page={{ page_obj.paginator.num_pages }}" aria-label="Last page" title="Last page">⏭️</a>
+                {% endif %}
+            </div>
         </div>
     {% endif %}
 </section>
