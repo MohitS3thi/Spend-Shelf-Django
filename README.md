@@ -5,6 +5,7 @@ A production-ready Django expense tracker covering:
 - Expense CRUD (create, read, update, delete)
 - Financial profile (savings, salary, monthly budget)
 - Dashboard with 6-month trend chart
+- Data Analysis page with statistical measures and spending projections
 - Budget alerts and usage insights
 - Recurring transactions processing
 - CSV expense imports
@@ -23,6 +24,13 @@ A production-ready Django expense tracker covering:
   - 6-month line chart
   - Budget usage alerts
   - Spending insights (top category, avg daily spend, salary ratio)
+- Data Analysis:
+  - Total, average, median, and largest expense summaries
+  - Standard deviation of expense amounts
+  - Month-over-month spending percentage changes
+  - Category-wise spending variance
+  - Linear regression trendline with next-month spend projection
+  - Select an analysis measure and generate its detailed result
 - Reports:
   - Select month
   - Total monthly spend
@@ -120,6 +128,7 @@ web: gunicorn expense_tracker.wsgi --log-file -
 - `/login/` - login
 - `/` - dashboard
 - `/expenses/` - list expenses
+- `/analysis/` - spending statistics, category analysis, and trend projection
 - `/expenses/add/` - add expense
 - `/profile/financial/` - savings/salary/budget profile
 - `/recurring/` - recurring transactions
