@@ -31,7 +31,7 @@
                         {{ item.title }}
                         <small class="muted">({{ item.category.name }} / {{ item.get_frequency_display }} / next: {{ item.next_due_date }})</small>
                     </span>
-                    <strong>${{ item.amount }}</strong>
+                    <strong>₹{{ item.amount }}</strong>
                 </li>
             {% endfor %}
         </ul>

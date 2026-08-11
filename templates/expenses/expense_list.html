@@ -24,7 +24,7 @@
                         <td>{{ expense.date }}</td>
                         <td>{{ expense.title }}</td>
                         <td>{{ expense.category.name }}</td>
-                        <td>${{ expense.amount }}</td>
+                        <td>₹{{ expense.amount }}</td>
                         <td>
                             <a href="{% url 'expense-edit' expense.pk %}">Edit</a>
                             |

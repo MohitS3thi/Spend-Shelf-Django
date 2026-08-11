@@ -12,7 +12,7 @@
 <section class="grid stats-grid">
     <article class="card stat-card">
         <h3>Total for Month</h3>
-        <p class="amount">${{ month_total }}</p>
+        <p class="amount">₹{{ month_total }}</p>
     </article>
 </section>
 
@@ -23,7 +23,7 @@
             {% for row in category_breakdown %}
                 <li>
                     <span>{{ row.category__name }}</span>
-                    <strong>${{ row.total }}</strong>
+                    <strong>₹{{ row.total }}</strong>
                 </li>
             {% empty %}
                 <li class="muted">No category data for this month.</li>
@@ -37,7 +37,7 @@
             {% for expense in expenses %}
                 <li>
                     <span>{{ expense.date }} - {{ expense.title }}</span>
-                    <strong>${{ expense.amount }}</strong>
+                    <strong>₹{{ expense.amount }}</strong>
                 </li>
             {% empty %}
                 <li class="muted">No expenses found.</li>

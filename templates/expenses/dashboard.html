@@ -15,11 +15,11 @@
 <section class="grid stats-grid">
     <article class="card stat-card">
         <h3>This Month</h3>
-        <p class="amount">${{ current_month_total }}</p>
+        <p class="amount">₹{{ current_month_total }}</p>
     </article>
     <article class="card stat-card">
         <h3>Lifetime Spend</h3>
-        <p class="amount">${{ lifetime_total }}</p>
+        <p class="amount">₹{{ lifetime_total }}</p>
     </article>
 </section>
 
@@ -45,7 +45,7 @@
             {% for item in recent_expenses %}
                 <li>
                     <span>{{ item.title }} <small class="muted">({{ item.category.name }})</small></span>
-                    <strong>${{ item.amount }}</strong>
+                    <strong>₹{{ item.amount }}</strong>
                 </li>
             {% empty %}
                 <li class="muted">No expenses yet.</li>
@@ -61,12 +61,12 @@
             {% if top_category %}
                 <li>
                     <span>Top Category (This Month)</span>
-                    <strong>{{ top_category.category__name }} (${{ top_category.total }})</strong>
+                    <strong>{{ top_category.category__name }} (₹{{ top_category.total }})</strong>
                 </li>
             {% endif %}
             <li>
                 <span>Avg Daily Spend</span>
-                <strong>${{ avg_daily_spend }}</strong>
+                <strong>₹{{ avg_daily_spend }}</strong>
             </li>
             {% if salary_spend_ratio is not None %}
                 <li>
@@ -86,15 +86,15 @@
         <ul class="clean-list">
             <li>
                 <span>Current Savings</span>
-                <strong>${{ financial_profile.current_savings }}</strong>
+                <strong>₹{{ financial_profile.current_savings }}</strong>
             </li>
             <li>
                 <span>Monthly Salary</span>
-                <strong>${{ financial_profile.monthly_salary }}</strong>
+                <strong>₹{{ financial_profile.monthly_salary }}</strong>
             </li>
             <li>
                 <span>Monthly Budget</span>
-                <strong>${{ financial_profile.monthly_budget }}</strong>
+                <strong>₹{{ financial_profile.monthly_budget }}</strong>
             </li>
         </ul>
         <div class="card-action">
