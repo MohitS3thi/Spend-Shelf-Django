@@ -156,6 +156,3 @@ pip install reportlab
 1. Fork the repository and create a branch for your change.
 2. Open a PR with a concise description of the change.
 
-## License
-
-This project is provided without a license; add an appropriate license file if you plan to publish it.
