@@ -22,7 +22,6 @@ The application includes the following detailed capabilities:
 	- Per-user data isolation: categories, expenses, and profiles are scoped to the logged-in user.
 
 - Dashboard
-	- Personalized greeting using the user's first and last name when available.
 	- Current month total, lifetime spend, and recent expenses list.
 	- 6-month trend chart (Chart.js) with responsive layout.
 	- Budget alerts and budget usage percentage computed from the user's financial profile.
