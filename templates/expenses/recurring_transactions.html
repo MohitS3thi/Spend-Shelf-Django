@@ -1,42 +1,229 @@
 {% extends 'base.html' %}
-{% block title %}Recurring Transactions | Spend Shelf{% endblock %}
+{% block title %}Personalize | Spend Shelf{% endblock %}
 {% block content %}
 <section class="card form-card">
-    <h1>Recurring Transactions</h1>
-    <p class="muted">Create weekly or monthly recurring expenses and process due entries.</p>
+    <div class="card-header">
+        <h1>Personalize</h1>
+    </div>
+    <p class="muted">Manage your categories, recurring transactions, and personal financial profile from one place.</p>
 
-    <form method="post" class="stack-form">
-        {% csrf_token %}
-        <input type="hidden" name="action" value="process-due" />
-        <button type="submit" class="btn-primary">Process Due Transactions</button>
-    </form>
-
-    <hr class="section-divider" />
-
-    <h2>Add Recurring Transaction</h2>
-    <form method="post" class="stack-form">
-        {% csrf_token %}
-        {{ recurring_form.as_p }}
-        <button type="submit" class="btn-primary">Save Recurring Transaction</button>
-    </form>
+    <div class="manage-buttons">
+        <button type="button" class="btn-primary toggle-card" data-target="category-setup-card" aria-expanded="false">Category Setup</button>
+        <button type="button" class="btn-primary toggle-card" data-target="recurring-setup-card" aria-expanded="false">Recurring Transactions</button>
+        <button type="button" class="btn-primary toggle-card" data-target="financial-setup-card" aria-expanded="false">Financial Profile</button>
+    </div>
+    <div id="modal-backdrop" hidden></div>
 </section>
 
-<section class="card">
-    <h2>Your Recurring Items</h2>
-    {% if recurring_items %}
-        <ul class="clean-list">
-            {% for item in recurring_items %}
-                <li>
-                    <span>
-                        {{ item.title }}
-                        <small class="muted">({{ item.category.name }} / {{ item.get_frequency_display }} / next: {{ item.next_due_date }})</small>
-                    </span>
-                    <strong>₹{{ item.amount }}</strong>
-                </li>
-            {% endfor %}
-        </ul>
-    {% else %}
-        <p class="muted">No recurring transactions yet.</p>
-    {% endif %}
+<section class="grid content-grid">
+    <article class="card form-card" id="category-setup-card" hidden>
+        <div class="card-header">
+            <h1>Category Setup</h1>
+            <button type="button" class="close-card" data-target="category-setup-card" aria-label="Close">✕</button>
+        </div>
+        <p class="muted">Create categories for your expenses and seed a default starter set.</p>
+
+        <form method="post" class="stack-form">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="seed" />
+            <button type="submit" class="btn-primary">Seed Default Categories</button>
+        </form>
+
+        <hr class="section-divider" />
+
+        <h2>Add Category</h2>
+        <form method="post" class="stack-form">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="add-category" />
+            {{ category_form.as_p }}
+            <button type="submit" class="btn-primary">Save Category</button>
+        </form>
+
+        <button type="button" class="btn-secondary toggle-panel" data-target="categories-panel" aria-expanded="false" title="Show personalized categories">👁 View My Categories</button>
+    </article>
+
+    <article class="card form-card" id="recurring-setup-card" hidden>
+        <div class="card-header">
+            <h1>Recurring Transactions</h1>
+            <button type="button" class="close-card" data-target="recurring-setup-card" aria-label="Close">✕</button>
+        </div>
+        <p class="muted">Create weekly or monthly recurring expenses and process due entries.</p>
+
+        <form method="post" class="stack-form">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="process-due" />
+            <button type="submit" class="btn-primary">Process Due Transactions</button>
+        </form>
+
+        <hr class="section-divider" />
+
+        <h2>Add Recurring Transaction</h2>
+        <form method="post" class="stack-form">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="add-recurring" />
+            {{ recurring_form.as_p }}
+            <button type="submit" class="btn-primary">Save Recurring Transaction</button>
+        </form>
+
+        <button type="button" class="btn-secondary toggle-panel" data-target="recurring-panel" aria-expanded="false" title="Show personalized recurring items">👁 View My Recurring Items</button>
+    </article>
 </section>
+
+<section class="grid content-grid">
+    <article class="card form-card" id="financial-setup-card" hidden>
+        <div class="card-header">
+            <h1>Financial Profile</h1>
+            <button type="button" class="close-card" data-target="financial-setup-card" aria-label="Close">✕</button>
+        </div>
+        <p class="muted">Set your monthly salary, budget, and current savings. These values are used for the dashboard insights.</p>
+
+        <form method="post" class="stack-form">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="update-financial" />
+            {{ profile_form.as_p }}
+            <button type="submit" class="btn-primary">Save Financial Profile</button>
+        </form>
+
+        <button type="button" class="btn-secondary toggle-panel" data-target="financial-panel" aria-expanded="false" title="Show my financial snapshot">👁 View Snapshot</button>
+    </article>
+</section>
+
+<section class="grid content-grid">
+    <article class="card" id="financial-panel" hidden>
+        <h2>Your Financial Snapshot</h2>
+        {% if financial_profile %}
+            <ul class="clean-list">
+                <li><span>Current Savings</span><strong>₹{{ financial_profile.current_savings }}</strong></li>
+                <li><span>Monthly Salary</span><strong>₹{{ financial_profile.monthly_salary }}</strong></li>
+                <li><span>Monthly Budget</span><strong>₹{{ financial_profile.monthly_budget }}</strong></li>
+            </ul>
+        {% else %}
+            <p class="muted">No financial profile set. Save values above to populate snapshot.</p>
+        {% endif %}
+    </article>
+
+<section class="grid content-grid">
+    <article class="card" id="categories-panel" hidden>
+        <h2>Your Categories</h2>
+        {% if categories %}
+            <ul class="clean-list">
+                {% for category in categories %}
+                    <li>
+                        <span>{{ category.name }}</span>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p class="muted">No categories yet. Add one above or seed defaults.</p>
+        {% endif %}
+    </article>
+
+    <article class="card" id="recurring-panel" hidden>
+        <h2>Your Recurring Items</h2>
+        {% if recurring_items %}
+            <ul class="clean-list">
+                {% for item in recurring_items %}
+                    <li>
+                        <span>
+                            {{ item.title }}
+                            <small class="muted">({{ item.category.name }} / {{ item.get_frequency_display }} / next: {{ item.next_due_date }})</small>
+                        </span>
+                        <strong>₹{{ item.amount }}</strong>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p class="muted">No recurring transactions yet.</p>
+        {% endif %}
+    </article>
+</section>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        document.querySelectorAll('.toggle-card').forEach(function (button) {
+            button.addEventListener('click', function () {
+                const targetId = button.dataset.target;
+                const card = document.getElementById(targetId);
+                if (!card) return;
+
+                const isHidden = card.hasAttribute('hidden');
+                document.querySelectorAll('[id$="-setup-card"]').forEach(function (otherCard) {
+                    if (otherCard.id !== targetId) {
+                        otherCard.setAttribute('hidden', '');
+                    }
+                });
+
+                if (isHidden) {
+                    card.removeAttribute('hidden');
+                    // show backdrop and center the card as modal
+                    const backdrop = document.getElementById('modal-backdrop');
+                    if (backdrop) backdrop.removeAttribute('hidden');
+                    card.classList.add('card-open', 'modal-card');
+                    button.setAttribute('aria-expanded', 'true');
+                } else {
+                    card.setAttribute('hidden', '');
+                    card.classList.remove('card-open', 'modal-card');
+                    const backdrop = document.getElementById('modal-backdrop');
+                    if (backdrop) backdrop.setAttribute('hidden', '');
+                    button.setAttribute('aria-expanded', 'false');
+                }
+            });
+        });
+
+        document.querySelectorAll('.toggle-panel').forEach(function (button) {
+            button.addEventListener('click', function () {
+                const targetId = button.dataset.target;
+                const panel = document.getElementById(targetId);
+                if (!panel) return;
+
+                const labels = {
+                    'categories-panel': { show: '👁 View My Categories', hide: '🙈 Hide Categories' },
+                    'recurring-panel': { show: '👁 View My Recurring Items', hide: '🙈 Hide Recurring Items' },
+                    'financial-panel': { show: '👁 View Snapshot', hide: '🙈 Hide Snapshot' }
+                }[targetId] || { show: '👁 View', hide: '🙈 Hide' };
+
+                const isHidden = panel.hasAttribute('hidden');
+                if (isHidden) {
+                    panel.removeAttribute('hidden');
+                    button.setAttribute('aria-expanded', 'true');
+                    button.textContent = labels.hide;
+                } else {
+                    panel.setAttribute('hidden', '');
+                    button.setAttribute('aria-expanded', 'false');
+                    button.textContent = labels.show;
+                }
+            });
+        });
+
+        // close-card controls inside each card
+        document.querySelectorAll('.close-card').forEach(function (btn) {
+            btn.addEventListener('click', function () {
+                const targetId = btn.dataset.target;
+                const card = document.getElementById(targetId);
+                if (!card) return;
+                card.setAttribute('hidden', '');
+                card.classList.remove('card-open', 'modal-card');
+                const backdrop = document.getElementById('modal-backdrop');
+                if (backdrop) backdrop.setAttribute('hidden', '');
+                // ensure the corresponding toggle button is collapsed
+                const toggleBtn = document.querySelector('.toggle-card[data-target="' + targetId + '"]');
+                if (toggleBtn) toggleBtn.setAttribute('aria-expanded', 'false');
+            });
+        });
+
+        // close modal when clicking backdrop
+        const backdropEl = document.getElementById('modal-backdrop');
+        if (backdropEl) {
+            backdropEl.addEventListener('click', function () {
+                document.querySelectorAll('.modal-card').forEach(function (c) {
+                    c.setAttribute('hidden', '');
+                    c.classList.remove('card-open', 'modal-card');
+                    const toggleBtn = document.querySelector('.toggle-card[data-target="' + c.id + '"]');
+                    if (toggleBtn) toggleBtn.setAttribute('aria-expanded', 'false');
+                });
+                backdropEl.setAttribute('hidden', '');
+            });
+        }
+    });
+</script>
 {% endblock %}

@@ -9,7 +9,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet" />
     {% load static %}
-    <link rel="stylesheet" href="{% static 'css/styles.css' %}?v=20260811-2" />
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}?v=20260812-1" />
 </head>
 <body>
     <div class="bg-shape bg-shape-1"></div>
@@ -21,13 +21,14 @@
             {% if user.is_authenticated %}
                 <a href="{% url 'dashboard' %}" class="nav-main">Dashboard</a>
                 <a href="{% url 'expense-list' %}" class="nav-main">Expenses</a>
-                <a href="{% url 'analysis' %}" class="nav-main">Analysis</a>
-                <a href="{% url 'report-monthly' %}" class="nav-main">Reports</a>
-                <a href="{% url 'financial-profile' %}" class="nav-tools">Financials</a>
-                <a href="{% url 'recurring-transactions' %}" class="nav-tools">Recurring</a>
-                <a href="{% url 'import-csv' %}" class="nav-tools">Import CSV</a>
-                <a href="{% url 'seed-categories' %}" class="nav-tools">Setup</a>
+                <a href="{% url 'analysis' %}" class="nav-main">Data-Analysis</a>
+                <a href="{% url 'report-monthly' %}" class="nav-main">Monthly Report</a>
+                <a href="{% url 'recurring-transactions' %}" class="nav-tools">Personalize</a>
+                <a href="{% url 'import-csv' %}" class="nav-tools">Import / Export CSV</a>
                 <div class="nav-divider"></div>
+                <a href="{% url 'profile' %}" class="nav-profile" aria-label="Profile" title="Profile">
+                    <i class="fa-solid fa-user"></i>
+                </a>
                 <form method="post" action="{% url 'logout' %}" class="inline-form">
                     {% csrf_token %}
                     <button type="submit" class="link-btn">Logout</button>

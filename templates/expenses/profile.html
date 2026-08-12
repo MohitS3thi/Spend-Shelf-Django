@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<main class="content-grid">
+  <article class="card form-card">
+    <header class="card-header">
+      <h2>Your Profile</h2>
+    </header>
+    <form method="post" novalidate>
+      {% csrf_token %}
+      <div class="form-grid">
+        <div>
+          <label for="id_first_name">First name</label>
+          {{ form.first_name }}
+        </div>
+        <div>
+          <label for="id_last_name">Last name</label>
+          {{ form.last_name }}
+        </div>
+        <div>
+          <label for="id_email">Email</label>
+          {{ form.email }}
+        </div>
+      </div>
+      <div style="margin-top:1rem; display:flex; gap:0.5rem;">
+        <button type="submit" class="btn-primary">Save</button>
+        <a href="{% url 'dashboard' %}" class="btn-secondary">Cancel</a>
+      </div>
+    </form>
+  </article>
+</main>
+{% endblock %}

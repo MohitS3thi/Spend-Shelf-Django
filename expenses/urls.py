@@ -3,18 +3,18 @@ from django.urls import path
 from .views import (
     CSVImportView,
     AnalysisView,
-    CategorySetupView,
     DashboardView,
     ExpenseCreateView,
     ExpenseDeleteView,
     ExpenseListView,
     ExpenseUpdateView,
-    FinancialProfileView,
+    RecurringSetupView,
+    UserProfileView,
     ReportView,
-    RecurringTransactionView,
     SignUpView,
     UserLoginView,
     export_spending_csv,
+    export_analysis_pdf,
 )
 
 urlpatterns = [
@@ -27,9 +27,10 @@ urlpatterns = [
     path("expenses/<int:pk>/edit/", ExpenseUpdateView.as_view(), name="expense-edit"),
     path("expenses/<int:pk>/delete/", ExpenseDeleteView.as_view(), name="expense-delete"),
     path("reports/monthly/", ReportView.as_view(), name="report-monthly"),
-    path("setup/categories/", CategorySetupView.as_view(), name="seed-categories"),
-    path("profile/financial/", FinancialProfileView.as_view(), name="financial-profile"),
-    path("recurring/", RecurringTransactionView.as_view(), name="recurring-transactions"),
+    path("setup/categories/", RecurringSetupView.as_view(), name="seed-categories"),
+    path("recurring/", RecurringSetupView.as_view(), name="recurring-transactions"),
+    path("profile/", UserProfileView.as_view(), name="profile"),
     path("imports/csv/", CSVImportView.as_view(), name="import-csv"),
     path("exports/spending.csv", export_spending_csv, name="export-spending-csv"),
+    path("analysis/export/pdf/", export_analysis_pdf, name="export-analysis-pdf"),
 ]

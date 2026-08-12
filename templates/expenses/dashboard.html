@@ -3,13 +3,15 @@
 {% block content %}
 <section class="hero">
     <div>
-        <h1>Expense Dashboard</h1>
+        {% if user.get_full_name %}
+            <h1>Welcome, {{ user.get_full_name }}</h1>
+        {% else %}
+            <h1>Expense Dashboard</h1>
+        {% endif %}
         <p class="muted">Watch trends, control costs, and stay ahead of your budget.</p>
     </div>
     <div class="hero-actions">
-        <a href="{% url 'expense-add' %}" class="btn-primary">Add Expense</a>
-        <a href="{% url 'analysis' %}" class="btn-secondary">Data Analysis</a>
-        <a href="{% url 'export-spending-csv' %}" class="btn-secondary" title="Export spending as CSV">📥 CSV</a>
+        <!-- Dashboard CSV export moved to the Import/Export page -->
     </div>
 </section>
 
@@ -41,7 +43,9 @@
     </article>
 
     <article class="card">
-        <h2>Recent Expenses</h2>
+        <div class="card-header">
+            <h2>Recent Expenses</h2>
+        </div>
         <ul class="clean-list">
             {% for item in recent_expenses %}
                 <li>
@@ -52,6 +56,9 @@
                 <li class="muted">No expenses yet.</li>
             {% endfor %}
         </ul>
+        <div class="card-action">
+            <a href="{% url 'expense-add' %}" class="btn-primary" title="Add Expense" aria-label="Add Expense">+</a>
+        </div>
     </article>
 </section>
 
@@ -99,7 +106,7 @@
             </li>
         </ul>
         <div class="card-action">
-            <a href="{% url 'financial-profile' %}" class="btn-primary">Update Financial Profile</a>
+            <a href="{% url 'recurring-transactions' %}" class="btn-primary">Personalize</a>
         </div>
     </article>
 </section>

@@ -78,4 +78,16 @@ class RecurringTransactionForm(forms.ModelForm):
 
 
 class CSVImportForm(forms.Form):
-    csv_file = forms.FileField(help_text="CSV with columns: date,title,category,amount,notes")
+    csv_file = forms.FileField()
+
+
+class ProfileForm(forms.ModelForm):
+    class Meta:
+        model = User
+        fields = ["first_name", "last_name", "email"]
+
+    def clean_email(self):
+        email = self.cleaned_data.get("email", "").strip()
+        if email == "":
+            raise forms.ValidationError("Email is required.")
+        return email

@@ -169,6 +169,31 @@ nav a:active {
     font-size: 0.9rem;
 }
 
+/* Profile icon in the nav (icon-only) */
+.nav-profile {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 999px;
+    background: linear-gradient(135deg, var(--accent), #ea580c);
+    color: #fff;
+    text-decoration: none;
+    margin-left: 0.5rem;
+    border: 2px solid rgba(255,255,255,0.08);
+    box-shadow: 0 6px 14px rgba(249,115,22,0.18);
+}
+
+.nav-profile i {
+    font-size: 1rem;
+}
+
+.nav-profile:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 18px rgba(249,115,22,0.26);
+}
+
 .nav-tools:hover {
     opacity: 1;
 }
@@ -210,6 +235,18 @@ nav a:active {
     gap: 0.6rem;
     flex-wrap: wrap;
     align-items: center;
+}
+
+.hero-actions-right {
+    justify-content: flex-end;
+    width: 100%;
+}
+
+.analysis-actions {
+    display: flex;
+    gap: 0.6rem;
+    flex-wrap: wrap;
+    justify-content: flex-end;
 }
 
 h1,
@@ -317,8 +354,8 @@ h3 {
 
 .auth-card,
 .form-card {
-    max-width: 540px;
-    margin: 2rem auto;
+    max-width: 920px;
+    margin: 1.5rem auto;
 }
 
 .stat-card .amount {
@@ -389,6 +426,118 @@ h3 {
     gap: 0.35rem;
 }
 
+/* Setup / Recurring management buttons and responsive cards */
+.manage-buttons {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-top: 0.6rem;
+}
+
+.toggle-card {
+    min-width: 160px;
+    padding: 0.6rem 1rem;
+    border-radius: 12px;
+    font-weight: 800;
+    cursor: pointer;
+}
+
+#category-setup-card,
+#recurring-setup-card {
+    width: 100%;
+    max-width: 860px;
+    margin: 0.6rem auto;
+    transition: all 220ms ease;
+}
+
+/* Personalize page cards are managed individually; do not force width here */
+
+/* open card animation and close control */
+.card {
+    transition: transform 220ms ease, opacity 220ms ease;
+}
+
+.card.card-open {
+    transform: translateY(0);
+    opacity: 1;
+}
+
+.card[hidden] {
+    opacity: 0;
+    transform: translateY(-6px);
+}
+
+.close-card {
+    background: transparent;
+    border: none;
+    font-size: 1.05rem;
+    color: var(--muted);
+    cursor: pointer;
+    padding: 0.25rem 0.5rem;
+    border-radius: 6px;
+    transition: background 160ms ease, color 160ms ease;
+}
+
+.close-card:hover {
+    background: rgba(0,0,0,0.04);
+    color: var(--text);
+}
+
+.card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+}
+
+/* Modal backdrop and centered modal card (scoped to `.modal-card`) */
+#modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.38);
+    z-index: 2000;
+}
+
+#modal-backdrop[hidden] {
+    display: none;
+}
+
+/* Only elements with both `.card` and `.modal-card` will become centered modals */
+.card.modal-card {
+    position: fixed;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: min(920px, 92%);
+    z-index: 2001;
+    max-height: 88vh;
+    overflow: auto;
+    box-shadow: 0 30px 60px rgba(17,24,39,0.25);
+}
+
+@media (min-width: 900px) {
+    .manage-buttons .toggle-card {
+        width: 260px;
+    }
+
+    #category-setup-card,
+    #recurring-setup-card {
+        padding: 1.25rem;
+        border-radius: 14px;
+    }
+}
+
+@media (max-width: 900px) {
+    .manage-buttons {
+        gap: 0.6rem;
+    }
+
+    .toggle-card {
+        width: 100%;
+    }
+}
+
 input,
 select,
 textarea {
@@ -397,6 +546,19 @@ textarea {
     padding: 0.65rem;
     font: inherit;
     width: 100%;
+}
+
+/* Profile page tweaks */
+.form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+
+@media (max-width: 720px) {
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
 }
 
 .table-wrap {
