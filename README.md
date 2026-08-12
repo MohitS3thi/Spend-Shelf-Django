@@ -1,144 +1,161 @@
 # Django Expense Tracker (Spend Shelf)
 
-A production-ready Django expense tracker covering:
+Spend Shelf is a Django-based personal expense tracker with dashboards, analysis, recurring transactions, CSV import/export, and PDF analysis export.
+
+Key features include:
 - Authentication (signup/login/logout)
 - Expense CRUD (create, read, update, delete)
 - Financial profile (savings, salary, monthly budget)
-- Dashboard with 6-month trend chart
-- Data Analysis page with statistical measures and spending projections
+- Dashboard with 6-month trend chart and personalized greeting
+- Data Analysis page with multiple statistical measures and trend projection
 - Budget alerts and usage insights
 - Recurring transactions processing
-- CSV expense imports
-- Monthly reports with category breakdown
-- Form validation and user-scoped data
-- Deployment-ready configuration for cloud hosting
-
-## Features
-
-- User auth via Django auth system
-- User-specific categories and expenses
-- Dashboard metrics:
-  - Current month total
-  - Lifetime total
-  - Recent expenses
-  - 6-month line chart
-  - Budget usage alerts
-  - Spending insights (top category, avg daily spend, salary ratio)
-- Data Analysis:
-  - Total, average, median, and largest expense summaries
-  - Standard deviation of expense amounts
-  - Month-over-month spending percentage changes
-  - Category-wise spending variance
-  - Linear regression trendline with next-month spend projection
-  - Select an analysis measure and generate its detailed result
-- Reports:
-  - Select month
-  - Total monthly spend
-  - Category breakdown
-  - Detailed entries
-- Recurring:
-  - Weekly/monthly recurring setup
-  - Manual processing of due recurring expenses
-- Imports:
-  - CSV upload for bulk expense import
-- Exports:
-  - CSV export of all spending and financial profile
-- Secure user data filtering in every query
-
-## Tech Stack
-
-- Django 5
-- SQLite for local development
-- PostgreSQL-ready via `DATABASE_URL`
-- WhiteNoise for static files
-- Gunicorn for production
-
-## Screenshots 
-<img width="1905" height="926" alt="Screenshot 2026-04-01 204528" src="https://github.com/user-attachments/assets/531c3649-9301-4ee8-a3da-110e5037a3b6" />
-<img width="1883" height="882" alt="Screenshot 2026-04-01 204712" src="https://github.com/user-attachments/assets/42432991-2ae4-4eb1-ac2d-5a60566ea835" />
-<img width="1897" height="928" alt="Screenshot 2026-04-01 204622" src="https://github.com/user-attachments/assets/42a4a64f-e613-4768-9d1f-805e866e190a" />
-<img width="697" height="633" alt="Screenshot 2026-04-01 204856" src="https://github.com/user-attachments/assets/a781db80-a4c2-434e-8912-e6e8a0b37ab4" />
-<img width="1892" height="934" alt="Screenshot 2026-04-01 204755" src="https://github.com/user-attachments/assets/12227148-86c5-4a61-8c91-7af61dc37c9b" />
+- CSV import/export and monthly report generation
 
 
+## Features (Extended)
 
+The application includes the following detailed capabilities:
 
-## Local Setup
+- Authentication and onboarding
+	- User registration, login, logout using Django auth.
+	- Per-user data isolation: categories, expenses, and profiles are scoped to the logged-in user.
 
-1. Create and activate a virtual environment.
+- Dashboard
+	- Personalized greeting using the user's first and last name when available.
+	- Current month total, lifetime spend, and recent expenses list.
+	- 6-month trend chart (Chart.js) with responsive layout.
+	- Budget alerts and budget usage percentage computed from the user's financial profile.
+
+- Expense management
+	- Create, edit, and delete expenses; each expense belongs to a category.
+	- Category creation and management from the Personalize page.
+
+- Financial profile
+	- Edit current savings, monthly salary, and monthly budget on the Personalize page.
+	- Dashboard uses these values for alerts and insights (salary spend ratio, budget used).
+
+- Recurring transactions
+	- Create weekly or monthly recurring transactions; mark active/inactive.
+	- Manual processing endpoint to generate due expense rows from recurring items.
+
+- Data Analysis
+	- Analysis options include: overview, median, standard deviation, month-over-month change, category variance, and trend projection.
+	- Custom date-range analysis (default: latest 12 months) with exports to PDF via ReportLab.
+	- Statistical measures: total, average, median, standard deviation, and projection using linear regression.
+
+- Reports and exports
+	- Monthly reports with category breakdown and CSV export of all spending.
+	- PDF generation for analysis reports (uses ReportLab and Matplotlib image rendering).
+
+- Imports
+	- CSV import with basic validation (required headers: date,title,category,amount).
+
+- UI and usability
+	- Personalize page merges category setup, recurring transactions, and financial profile into a single management view.
+	- Toggle-reveal panels and modal-style cards for focused edits (backdrop, close controls, escape/backdrop-to-close behavior).
+	- Icon-only profile link in the top navigation leading to `/profile/`.
+
+## Quick Start (local development)
+
+Prerequisites: Python 3.10+ recommended.
+
+1. Create and activate a virtual environment:
+
+```bash
+python -m venv env
+# Windows
+env\Scripts\activate
+# macOS / Linux
+source env/bin/activate
+```
+
 2. Install dependencies:
 
 ```bash
 pip install -r requirements.txt
 ```
 
-3. Configure environment variables (copy `.env.example` to `.env`).
-4. Run migrations:
+3. Apply migrations:
 
 ```bash
-python manage.py makemigrations
 python manage.py migrate
 ```
 
-5. Create a superuser (optional):
+4. (Optional) Create a superuser:
 
 ```bash
 python manage.py createsuperuser
 ```
 
-6. Start the server:
+5. Run the development server:
 
 ```bash
 python manage.py runserver
 ```
 
-7. Open `http://127.0.0.1:8000/`
+6. Open http://127.0.0.1:8000/ and sign in.
 
-## Deployment (Render/Heroku-like)
+## Important notes
 
-1. Set environment variables:
-   - `DJANGO_SECRET_KEY`
-   - `DJANGO_DEBUG=False`
-   - `DJANGO_ALLOWED_HOSTS=<your-domain>`
-   - `DJANGO_CSRF_TRUSTED_ORIGINS=https://<your-domain>`
-   - `DATABASE_URL=<postgres-url>`
+- The app exposes a `/profile/` page where users can edit their name and email. The top navigation contains an icon linking to that page.
+- PDF analysis export uses ReportLab and Matplotlib (server-side rendering). If you see errors involving `reportlab` or Matplotlib backends, ensure `reportlab` is installed and Matplotlib uses a non-interactive backend (the code sets `Agg`).
+- Virtualenv folders (`env/`, `env1/`) may exist in the repository root; you can delete them if you manage environments elsewhere.
 
-2. Ensure install command includes:
+## Deployment (Render / Heroku-like)
 
-```bash
-pip install -r requirements.txt
-```
+Set environment variables in your deployment platform:
 
-3. Run DB migrations in a release step or once after deploy:
+- `DJANGO_SECRET_KEY` (required)
+- `DJANGO_DEBUG=False`
+- `DJANGO_ALLOWED_HOSTS` (your domain)
+- `DATABASE_URL` (Postgres URL if using Postgres)
+
+Typical deploy steps (ensure `pip install -r requirements.txt` runs during build):
 
 ```bash
 python manage.py migrate
 python manage.py collectstatic --noinput
 ```
 
-4. App starts with Procfile:
+Procfile (example):
 
-```text
+```
 web: gunicorn expense_tracker.wsgi --log-file -
 ```
 
-## URLs
+## Screenshots
 
-- `/signup/` - registration
-- `/login/` - login
-- `/` - dashboard
-- `/expenses/` - list expenses
-- `/analysis/` - spending statistics, category analysis, and trend projection
-- `/expenses/add/` - add expense
-- `/profile/financial/` - savings/salary/budget profile
-- `/recurring/` - recurring transactions
-- `/imports/csv/` - import expenses from CSV
-- `/exports/spending.csv` - export spending and profile as CSV
-- `/reports/monthly/` - monthly reports
-- `/admin/` - admin site
+## Routes / Pages
 
-## Notes
+- `/signup/` — registration
+- `/login/` — login
+- `/` — dashboard (shows personalized greeting if user has a name)
+- `/expenses/` — list expenses
+- `/expenses/add/` — add expense
+- `/analysis/` — spending statistics, category analysis, and trend projection
+- `/profile/` — edit name and email (user profile)
+- `/recurring/` — personalize (categories, recurring transactions, financial profile)
+- `/imports/csv/` — import expenses from CSV
+- `/exports/spending.csv` — download CSV export of spending
+- `/analysis/export/pdf/` — export analysis PDF
+- `/reports/monthly/` — monthly reports
+- `/admin/` — Django admin
 
-- Click `Setup Categories` after signup to create starter categories.
-- All expense and report views are login-protected.
-- Each user can only view and manage their own data.
+## Troubleshooting
+
+- If charts or PDF exports fail with Matplotlib errors about the main loop, ensure Matplotlib uses the `Agg` backend. The project already configures this, but system-wide Matplotlib configs can interfere.
+- If ReportLab is missing, install it:
+
+```bash
+pip install reportlab
+```
+
+## Contributing
+
+1. Fork the repository and create a branch for your change.
+2. Open a PR with a concise description of the change.
+
+## License
+
+This project is provided without a license; add an appropriate license file if you plan to publish it.
