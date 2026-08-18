@@ -365,11 +365,3 @@ docker pull yourname/spend-shelf:latest
 - ✅ Regular security updates: `docker pull postgres:16-alpine && docker compose up -d`
 
 ---
-
-## Support & Next Steps
-
-1. **Scale horizontally**: Run multiple web replicas with Docker Swarm or Kubernetes
-2. **Add logging**: Integration with ELK Stack, Datadog, or CloudWatch
-3. **Add monitoring**: Prometheus + Grafana for metrics
-4. **CDN**: CloudFront/Cloudflare for static assets
-5. **Database**: Managed PostgreSQL (AWS RDS, DigitalOcean Managed DB) for high availability

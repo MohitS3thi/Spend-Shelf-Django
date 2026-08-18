@@ -42,3 +42,7 @@ Thumbs.db
 PRODUCTION_QUICK_START.md
 .dockerignore
 .env.example
+APP_FLOW.md
+DEPLOYMENT.md
+DEPLOYMENT.md
+PRODUCTION_REQUIREMENTS.md
