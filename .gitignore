@@ -2,7 +2,11 @@
 __pycache__/
 *.py[cod]
 *$py.class
+*.pyc
+*.pyo
+*.pyd
 *.sqlite3
+*.db
 
 # Virtual environments
 .venv/
@@ -12,10 +16,29 @@ env1/
 
 # Django
 media/
+staticfiles/
+*.log
 
 # Environment variables
 .env
+.env.*
+!.env.example
 
-# IDE
+# Docker / local runtime
+.docker/
+Dockerfile.local
+compose.override.yml
+
+# IDE and OS
 .vscode/
 .idea/
+.DS_Store
+Thumbs.db
+
+# Local data
+/data/
+*.bak
+*.tmp
+PRODUCTION_QUICK_START.md
+.dockerignore
+.env.example

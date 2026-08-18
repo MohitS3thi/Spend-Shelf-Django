@@ -1,0 +1,106 @@
+
+
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: spend-shelf-db
+    environment:
+      POSTGRES_DB: spendshelf_prod
+      POSTGRES_USER: spendshelf
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U spendshelf"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+    networks:
+      - spend-shelf-net
+
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: spend-shelf:prod
+    container_name: spend-shelf-app
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DJANGO_SECRET_KEY: ${DJANGO_SECRET_KEY}
+      DJANGO_DEBUG: ${DJANGO_DEBUG}
+      DJANGO_ALLOWED_HOSTS: ${DJANGO_ALLOWED_HOSTS}
+      DATABASE_URL: postgresql://spendshelf:${DB_PASSWORD}@db:5432/spendshelf_prod
+      SECURE_SSL_REDIRECT: ${SECURE_SSL_REDIRECT}
+      SESSION_COOKIE_SECURE: ${SESSION_COOKIE_SECURE}
+      CSRF_COOKIE_SECURE: ${CSRF_COOKIE_SECURE}
+      SECURE_HSTS_SECONDS: ${SECURE_HSTS_SECONDS}
+      SECURE_HSTS_INCLUDE_SUBDOMAINS: ${SECURE_HSTS_INCLUDE_SUBDOMAINS}
+    volumes:
+      - app_static:/app/staticfiles
+      - app_data:/app/data
+    ports:
+      - "8000:8000"
+    expose:
+      - "8000"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/').read()"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    networks:
+      - spend-shelf-net
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 1G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+    command: >
+      sh -c "python manage.py migrate --noinput &&
+             python manage.py collectstatic --noinput &&
+             gunicorn expense_tracker.wsgi:application 
+             --bind 0.0.0.0:8000 
+             --workers 4 
+             --worker-class sync 
+             --worker-tmp-dir /dev/shm 
+             --max-requests 1000 
+             --timeout 60 
+             --access-logfile - 
+             --error-logfile -"
+
+  nginx:
+    image: nginx:alpine
+    container_name: spend-shelf-nginx
+    depends_on:
+      - web
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./ssl:/etc/nginx/ssl:ro
+      - app_static:/app/staticfiles:ro
+    restart: unless-stopped
+    networks:
+      - spend-shelf-net
+
+volumes:
+  db_data:
+    driver: local
+  app_static:
+    driver: local
+  app_data:
+    driver: local
+
+networks:
+  spend-shelf-net:
+    driver: bridge
