@@ -12,6 +12,10 @@ Key features include:
 - Recurring transactions processing
 - CSV import/export and monthly report generation
 
+## AppFlow
+![alt text](AppFlow.png)
+
+
 
 ## Features (Extended)
 
@@ -150,8 +154,4 @@ web: gunicorn expense_tracker.wsgi --log-file -
 pip install reportlab
 ```
 
-## Contributing
-
-1. Fork the repository and create a branch for your change.
-2. Open a PR with a concise description of the change.
 
