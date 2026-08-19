@@ -7,11 +7,13 @@ from .models import Category, Expense, FinancialProfile, RecurringTransaction
 
 
 class SignUpForm(UserCreationForm):
+    first_name = forms.CharField(required=False)
+    last_name = forms.CharField(required=False)
     email = forms.EmailField(required=True)
 
     class Meta:
         model = User
-        fields = ("username", "email", "password1", "password2")
+        fields = ("username", "first_name", "last_name", "email", "password1", "password2")
 
 
 class ExpenseForm(forms.ModelForm):
